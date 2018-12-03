@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+
+
+
+<style>
+.tooltip {
+            position: absolute;
+            font-size: 12px;
+            width:  auto;
+            height: auto;
+            pointer-events: none;
+            background-color: white;
+        }
+nav{
+	height: 60px;
+	background-color: black;
+	display: flex;
+}
+
+nav a{
+	color: white;
+	text-decoration: none;
+	margin: auto;
+}
+</style>
+<body bgcolor="gray" bgopacity = "0.5">
+<nav>
+	  <a href="index.html">Relationship Scatter Plot</a>
+	  <a href="TeamStats.html">Team Statistic</a>
+	  <a href="teamShot.html">Playoff Shot Location Chart</a>f="teamShot.html">Playoff Shot Location Chart</a>
+</nav>
+<div style= "float: left" id = "div1">
+<p><span><label for="x-axis">Select x-axis</label></span>
+<select id="x-value">
+  <option value="AGE">Age</option>
+  <option value="GP">Games Played</option>
+  <option value="MPG">Minutes Per Game</option>
+  <option value="USG">Usage Rate</option> 
+  <option value="FTA">Free Throw Attempts</option>
+  <option value="FTPER">Free Thow Percentage</option>
+  <option value="THRPA">3 Point Attempts</option>
+  <option value="THRPER">3 Point Percentage</option>
+  <option value="PPG">Points Per Game</option>
+  <option value="RPG">Rebounds Per Game</option>
+  <option value="APG">Assists Per Game</option>
+  <option value="SPG">Steals Per Game</option>
+  <option value="TOPG">Turnovers Per Game</option>
+  <option value="TRUE">True Shooting Percentage</option>
+  <option value="Height">Height</option>
+  <option value="Weight">Weight</option>
+  <option value="ORTG">Offensive Rating</option>
+  <option value="DRTG">Defensive Rating</option>
+  <option value="BPG">Blocks Per Game</option>
+</select>
+<p><span><label for="y-axis">Select y-axis</label></span>
+<select id="y-value">
+  <option value="AGE">Age</option>
+  <option value="GP">Games Played</option>
+  <option value="MPG">Minutes Per Game</option>
+  <option value="USG">Usage Rate</option> 
+  <option value="FTA">Free Throw Attempts</option>
+  <option value="FTPER">Free Thow Percentage</option>
+  <option value="THRPA">3 Point Attempts</option>
+  <option value="THRPER">3 Point Percentage</option>
+  <option value="PPG">Points Per Game</option>
+  <option value="RPG">Rebounds Per Game</option>
+  <option value="APG">Assists Per Game</option>
+  <option value="SPG">Steals Per Game</option>
+  <option value="TOPG">Turnovers Per Game</option>
+  <option value="TRUE">True Shooting Percentage</option>
+  <option value="Height">Height</option>
+  <option value="Weight">Weight</option>
+  <option value="ORTG">Offensive Rating</option>
+  <option value="DRTG">Defensive Rating</option>
+  <option value="BPG">Blocks Per Game</option>
+</select>
+
+
+<button onclick="setGraph()">submit</button>
+</div>
+
+
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+
+
+<div id="vis-container1" width = "1000px" height = "1000px">
+	
+</div>
+<div id="vis-container"></div>
+<div id = "div2" width = "1000px" height = "1000px"> </div>
+
+
+<script>
+
+function drawGraph(xText, yText) {
+	$('svg').remove();
+	//d3.select("#svg1").remove();
+	var margin = {top: 20, right: 20, bottom: 30, left: 40},
+		width = 800 - margin.left - margin.right,
+		height1 = 500 - margin.top - margin.bottom;
+	function round(value, decimals) {
+  				return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
+				}
+	
+
+	var xValue = function(d) { if(d[xText] !=0){return d[xText];}else{return 0;}}, 
+		xScale = d3.scale.linear().range([0, width]),
+		xMap = function(d) 	{return xScale(xValue(d));},
+		xAxis = d3.svg.axis().scale(xScale).orient("bottom");
+
+	
+	var yValue = function(d) { if(d[yText] !=0){return d[yText];}else{return 0;}},
+		yScale = d3.scale.linear().range([height1, 0]),
+		yMap = function(d) {return yScale(yValue(d));},
+		yAxis = d3.svg.axis().scale(yScale).orient("left");
+
+	
+	var team = ["Atl", "Bos", "Bro", "Cha", "Chi", "Cle", "Dal", "Den", "Det", "Gol", "Hou", "Ind", "Lac", "Lal", "Mem", "Mia", "Mil", "Min", "Nor", "Nyk", "Okc", "Orl", "Phi", "Pho", "Por", "Sac", "San", "Tor", "Uta", "Was"];
+
+	var fillColor = d3.scale.ordinal()
+			.domain(["Atl", "Bos", "Bro", "Cha", "Chi", "Cle", "Dal", "Den", "Det", "Gol", "Hou", "Ind", "Lac", "Lal", "Mem", "Mia", "Mil", "Min", "Nor", "Nyk", "Okc", "Orl", "Phi", "Pho", "Por", "Sac", "San", "Tor", "Uta", "Was"])
+			.range(['#E03A3E', '#007A33', '#000000', '#1d1160', '#ce1141', '#6f263d', '#00538c', '#0E2240','#c8102e', '#006bb6', '#ce1141', '#002d62', '#1d42ba', '#552583', '#5d76a9', '#98002e', '#00471b', '#0c2340', '#0c2340', '#006bb6', '#007ac1', '#0077c0', '#006bb6', '#1d1160', '#000000', '#5a2d81', '#000000', '#ce1141', '#002b5c','#002b5c']);
+
+	var strokeColor = d3.scale.ordinal()
+			.domain(["Atl", "Bos", "Bro", "Cha", "Chi", "Cle", "Dal", "Den", "Det", "Gol", "Hou", "Ind", "Lac", "Lal", "Mem", "Mia", "Mil", "Min", "Nor", "Nyk", "Okc", "Orl", "Phi", "Pho", "Por", "Sac", "San", "Tor", "Uta", "Was"])
+			.range(['#C1D32F', '#ffffff', '#ffffff', '#00788c', '#000000', '#ffb81c', '#002b5e','#FEC524', '#006bb6', '#fdb927', '#c4ced4', '#fdbb30', '#c8102e', '#fdb927', '#12173f', '#f9a01b', '#eee1c6', '#78be20', '#c8102e', '#f58426', '#ef3b24', '#000000', '#ed174c', '#e56020', '#e03a3e', '#63727a', '#c4ced4', '#a1a1a4', '#00471b', '#e31837']);
+
+	
+
+
+	
+	var svg = d3.select("#vis-container1").append("svg")
+		.attr("width", width +100)
+		.attr("height", height1 + margin.top + margin.bottom)
+	  .append("g")
+		.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+
+	
+	d3.csv("nba_player_data2.csv", function(data) {
+		var tooltip = d3.select("#vis-container1").append("div")
+                  .attr("class", "tooltip")
+                  .style("opacity", 0);
+
+		var tipMouseover = function(d) {
+                  var html  = d.FULLNAME + "<br/>" 
+                  + xText+": "  +round(d[xText],2)+ "<br/>"
+                  + yText+": "+ round(d[yText],2) ;
+                  tooltip.html(html)
+                      .style("left", (d3.event.pageX + 15) + "px")
+                      .style("top", (d3.event.pageY - 28) + "px")
+                    .transition()
+                      .duration(200)
+                      .style("opacity", .9)
+               };
+
+    var tipMouseout = function(d) {
+                  tooltip.transition()
+                      .duration(300)
+                      .style("opacity", 0);
+              };
+	  
+	  data.forEach(function(d) {
+		d[yText] = +d[yText];
+		d[xText] = +d[xText];
+		team= d.TEAM;
+	  });
+
+
+	 
+	  xScale.domain([0, d3.max(data, xValue)+0.1*d3.max(data, xValue)]);
+	  yScale.domain([0, d3.max(data, yValue)+0.1*d3.max(data, yValue)]);
+
+	
+
+	  
+	  svg.append("g")
+		  .attr("class", "x axis")
+		  .attr("transform", "translate(0," + height1 + ")")
+		  .call(xAxis)
+		  .append("text")
+		  .attr("class", "label")
+		  .attr("x", width)
+		  .attr("y", -6)
+		  .style("text-anchor", "end")
+		  .text(xText);
+
+	  
+	  svg.append("g")
+		  .attr("class", "y axis")
+		  .call(yAxis)
+		.append("text")
+		  .attr("class", "label")
+		  .attr("transform", "rotate(-90)")
+		  .attr("y", 6)
+		  .attr("dy", ".71em")
+		  .style("text-anchor", "end")
+		  .text(yText);
+
+	  
+	  svg.selectAll(".dot")
+		  .data(data)
+		.enter().append("circle")
+		  .attr("class", "dot")
+		  .attr("r", '7px')
+		  .attr('stroke-width', '2px')
+		  .style('opacity', 0.2)
+		  .attr("cx", xMap)
+		  .attr("cy", yMap)
+		  .attr("fill", function(d){
+					  	var fillTeam = d.TEAM
+						return fillColor(fillTeam);
+					  })
+		  .attr("stroke", function(d){
+					  	var strokeTeam =d.TEAM
+					  	return strokeColor(strokeTeam);
+					  }) 
+		  .on("mouseover", function(d) {
+			  d3.select(this).style('opacity', 1).attr('r', '15px').style('stroke-width', '2.86px')
+			  tipMouseover(d);
+		  })
+		  .on("mouseout", function(d) {
+			  d3.select(this).style('opacity', 0.2).attr('r', '7px').attr('stroke-width', '2px')
+			  tipMouseout(d);
+		  });
+
+
+ 	//input coefficient correllation
+ 	/** Computes the covariance between random variable observations
+		 * arrX and arrY
+		 */
+	var covar = function (arrX, arrY) {
+		    var u = d3.mean(arrX);
+		    var v = d3.mean(arrY);
+		    var arrXLen = arrX.length;
+		    var sq_dev = new Array(arrXLen);
+		    var i;
+		    for (i = 0; i < arrXLen; i++)
+		        sq_dev[i] = (arrX[i] - u) * (arrY[i] - v);
+		    return d3.sum(sq_dev) / (arrXLen - 1);
+		}
+
+
+ 	var computePearsons = function (arrX, arrY) {
+    var num = covar(arrX, arrY);
+    var denom = d3.deviation(arrX) * d3.deviation(arrY);
+    return num / denom;
+			}
+
+	arrX = data.map(function(d) {return d[xText];});
+	arrY = data.map(function(d) {return d[yText];});
+
+
+	var coef = computePearsons (arrX, arrY);
+
+
+
+	svg.append("text")
+	.attr("transform", "translate(100)")
+	.text("Pearsons' correllation coefficient: ")
+		;
+
+	svg.append("text")
+	.attr("transform", "translate(350)")
+	.text(coef);
+
+
+
+	  // draw legend
+	  //var svg3 = d3.select("#vis-container1").append("svg")
+	  var legend = svg.selectAll(".legend")
+		  .data(fillColor.domain())
+		.enter()
+		.append("g")
+		  .attr("class", "legend");
+
+	  // draw legend colored rectangles
+	  legend.append("circle")
+		  .attr("cx", width+15)
+		  .attr("cy", function(d,i){
+		  	yPos = 10 + 15*i
+		  	return yPos;
+		  })
+		  .attr("r", 6)
+		  .attr("stroke-width", '2px')
+		  .style("fill", function(d){
+		  	return fillColor(d);
+		  })
+		  .on("click", function(d) {
+                         
+                          d3.select(this).style("opacity", 0.5), 
+                          readTeam(d),readTeamAge(d);
+                      })
+/*
+          .on("click", function(d){
+                  d3.selectAll("circle.dot").attr("r", 7).style("opacity", 0.2);
+                  d3.select(this).style("opacity", 1)
+                 ;
+               })
+
+               */
+               
+		  .style("stroke", function(d){
+		  	return strokeColor(d);
+		  });
+
+	  // draw legend text
+	  legend.append("text")
+		  .attr("x", width +23)
+		  .attr("y", function(d,i){
+		  	yPos = 10 + 15*i
+		  	return yPos;
+		  })
+		  .attr("dy", ".35em")
+		  .style("text-anchor", "begining")
+		  .text(function(d) { return d;})
+	});
+
+
+var color = "steelblue";
+var values = [25,22,22,24,24,22,31,33,25,26,20,24,23,24,25,27,29,25,30,24,34,24,26,24,23,23,22,28,29,24,32,21,25,31,23,25,27,20,24,23,21,25,28,29,23,22,25,28,24,30,20,21,26,26,22,29,22,24,24,29,24,27,23,33,22,36,31,21,21,32,25,23,32,26,30,23,25,20,31,26,32,25,30,35,34,20,27,23,19,29,21,22,25,29,30,30,22,24,23,27,27,30,35,25,25,37,25,26,20,23,29,23,21,25,28,27,31,23,24,20,24,26,24,29,22,24,22,21,34,20,28,21,22,26,39,21,21,23,26,20,27,33,28,32,26,36,28,23,30,23,31,21,25,28,29,26,25,30,28,25,29,24,23,19,23,22,31,23,24,31,25,32,32,33,23,24,31,25,28,27,23,25,28,22,26,31,33,28,26,25,23,28,23,29,20,20,33,22,22,23,21,25,27,22,29,21,22,22,37,20,22,38,22,27,28,30,29,24,26,22,27,32,23,23,19,34,20,22,30,21,21,23,19,31,29,26,23,22,25,22,25,29,28,33,24,30,26,30,36,20,25,23,26,20,27,24,27,20,24,27,30,25,22,19,28,23,25,27,23,36,26,22,28,20,23,23,24,24,32,27,24,23,25,24,28,22,24,21,23,22,22,26,27,26,22,27,26,28,28,24,29,29,21,25,26,27,40,28,23,22,24,26,36,22,31,27,22,25,32,27,29,26,27,25,20,33,30,20,29,31,31,32,24,29,21,28,30,29,25,28,24,21,19,28,40,33,33,31,30,28,32,23,31,22,22,29,28,20,20,30,25,33,31,27,29,27,23,24,26,27,29,26,24,30,27,26,29,29,30,24,22,32,24,24,25,21,23,24,29,35,26,24,32,29,25,24,24,22,26,27,22,24,20,24,28,32,29,24,23,25,22,22,28,29,37,27,32,26,24,32,27,37,24,31,31,23,25,33,26,25,27,28,24,27,31,27,29,25,21,29,21,23,24,31,25,29,29,26,31,23,37,28,23,28,25,26,25,24,32,27,23,21,24,24,21,29,26,24,25,32,26,23,24,26,23,33,29,23,20,27,25,28,31,22,26,24,25,26,19,20,35,26,27,23,24,32,30,25,22,20,26,26,23,27,21,27,25,21,22,28,28,23,35,21,37,25,25,41,23,21,25,30,23,23,30,31,27,24,27,23,30,25,23,30,24,20,22,36,33,22];
+
+
+// A formatter for counts.
+var formatCount = d3.format(",.0f");
+
+var margin1 = {top: 40, right: 30, bottom: 30, left: 30},
+    w = 500- margin1.left - margin1.right,
+    h = 400 - margin1.top - margin1.bottom;
+
+var max = d3.max(values);
+var min = d3.min(values);
+var x = d3.scale.linear()
+      .domain([min, max])
+      .range([0, w]);
+
+// Generate a histogram using twenty uniformly-spaced bins.
+var data = d3.layout.histogram()
+    .bins(x.ticks(20))
+    (values);
+
+    console.log(data)
+
+var yMax = d3.max(data, function(d){return d.length});
+var yMin = d3.min(data, function(d){return d.length});
+var colorScale = d3.scale.linear()
+            .domain([yMin, yMax])
+            .range([d3.rgb(color).brighter(), d3.rgb(color).darker()]);
+
+var y = d3.scale.linear()
+    .domain([0, yMax])
+    .range([h, 0]);
+
+var x_Axis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom");
+
+var svg1 = d3.select("#div1").append("svg")
+    .attr("width", w + margin1.left + margin1.right)
+    .attr("height", h + margin1.top + margin1.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin1.left+ "," + margin1.top + ")")
+    //.attr("transform", "translate(700,0)")
+    ;
+
+var bar = svg1.selectAll(".bar")
+    .data(data)
+  .enter().append("g")
+    .attr("class", "bar")
+    .attr("transform", function(d) { return "translate(" + x(d.x) + "," + y(d.y) + ")"; });
+
+bar.append("rect")
+    .attr("x", 1)
+    .attr("width", (x(data[0].dx) - x(0)) - 1)
+    .attr("height", function(d) { return h - y(d.y); })
+    .attr("fill", function(d) { return colorScale(d.y) })
+    .on("mouseover", function(d) {
+                         
+                          d3.select(this).style("opacity", 0.5), 
+                          readAge(d);
+                      })
+
+    .on("mouseout", function(d){
+                  d3.selectAll("circle.dot").attr("r", 7).style("opacity", 0.2);
+                  d3.select(this).style("opacity", 1)
+                 ;
+               })
+          ;
+
+bar.append("text")
+    .attr("dy", ".75em")
+    .attr("y", -12)
+    .attr("x", (x(data[0].dx) - x(0)) / 2)
+    .attr("text-anchor", "middle")
+    .text(function(d) { return formatCount(d.y); });
+
+svg1.append("g")
+    .attr("class", "x axis")
+    .attr("transform", "translate(0," + h + ")")
+    .call(x_Axis);
+
+svg1.append("text")
+	.attr("font", "12px")
+	.text("Age Distribution")
+	.attr("x", 300);
+
+
+
+
+//
+
+ 		var stats = [];
+            d3.csv("Team.csv", function(error, data) {
+
+                data.forEach(function(d) {
+                    stats.push({
+                        Team: d.Team,
+                        Wins: +d.Wins,
+                        Average_Age: +d. Average_Age
+                    })
+                });
+                makeChart(stats);
+            });
+
+            console.log(stats);
+
+
+
+     var makeChart = function(data){
+
+            var chart_width = 300;
+            var chart_height = 250;
+            var xScale = d3.scale.linear();
+            var yScale = d3.scale.linear();
+            xScale.domain([0,70]).range([0, chart_width]);
+            yScale.domain([20,32]).range([chart_height, 0]);
+            function round(value, decimals) {
+                return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
+                }
+            var xAxis = d3.svg.axis()
+                .scale(xScale)
+                .orient('bottom');
+
+            var yAxis = d3.svg.axis()
+                .scale(yScale)
+                .orient('left');
+
+             var margin1 = {top: 40, right: 30, bottom: 30, left: 30},
+				    w = 500- margin1.left - margin1.right,
+				    h = 400 - margin1.top - margin1.bottom;
+
+
+            var svg2 = d3.select("#div2").append('svg')
+            	.attr("width", w + margin1.left + margin1.right)
+			    .attr("height", h + margin1.top + margin1.bottom)
+			  	.append("g")
+			    .attr("transform", "translate(" + margin1.left+ "," + margin1.top + ")");	
+            //var svg1 = d3.select("#div1").append("svg")
+
+            svg2.append("g")
+            .attr("class", "axis")
+            .attr("transform", "translate(50," +chart_height+ ")")
+            .call(xAxis);
+
+            svg2.append("g")
+            .attr("class", "axis")
+            .attr("transform", "translate(50,0)")
+            .call(yAxis);
+
+           
+             svg2.append("text")
+                .text("Win vs Average Age per Team")
+                .attr("x", 100)
+                .attr("y", 0);
+
+             svg2.append("text")
+                .text("Win")
+                .attr("x", 300)
+                .attr("y", 300);
+
+            
+            svg2.append("text")
+	            .text("Average Age Team")
+	            .attr("y", 250)
+	            .attr("x", 15)
+	            .attr("transform", "rotate(-90, 15, 250)")
+            
+
+            var fillColor = d3.scale.ordinal()
+            .domain(["Atl", "Bos", "Bro", "Cha", "Chi", "Cle", "Dal", "Den", "Det", "Gol", "Hou", "Ind", "Lac", "Lal", "Mem", "Mia", "Mil", "Min", "Nor", "Nyk", "Okc", "Orl", "Phi", "Pho", "Por", "Sac", "San", "Tor", "Uta", "Was"])
+            .range(['#E03A3E', '#007A33', '#000000', '#1d1160', '#ce1141', '#6f263d', '#00538c', '#0E2240','#c8102e', '#006bb6', '#ce1141', '#002d62', '#1d42ba', '#552583', '#5d76a9', '#98002e', '#00471b', '#0c2340', '#0c2340', '#006bb6', '#007ac1', '#0077c0', '#006bb6', '#1d1160', '#000000', '#5a2d81', '#000000', '#ce1141', '#002b5c','#002b5c']);
+
+            var strokeColor = d3.scale.ordinal()
+            .domain(["Atl", "Bos", "Bro", "Cha", "Chi", "Cle", "Dal", "Den", "Det", "Gol", "Hou", "Ind", "Lac", "Lal", "Mem", "Mia", "Mil", "Min", "Nor", "Nyk", "Okc", "Orl", "Phi", "Pho", "Por", "Sac", "San", "Tor", "Uta", "Was"])
+            .range(['#C1D32F', '#ffffff', '#ffffff', '#00788c', '#000000', '#ffb81c', '#002b5e','#FEC524', '#006bb6', '#fdb927', '#c4ced4', '#fdbb30', '#c8102e', '#fdb927', '#12173f', '#f9a01b', '#eee1c6', '#78be20', '#c8102e', '#f58426', '#ef3b24', '#000000', '#ed174c', '#e56020', '#e03a3e', '#63727a', '#c4ced4', '#a1a1a4', '#00471b', '#e31837']);
+
+            
+            var tooltip = d3.select("#div2").append("div")
+                  .attr("class", "tooltip")
+                  .style("opacity", 0);
+
+            // tooltip mouseover event handler
+              var tipMouseover = function(d) {
+                  var html  = d.Team + "<br/>" 
+                  + "Wins: " +d.Wins + "<br/>"
+                  + "Average Age Team: " +d.Average_Age + "<br/>";
+                  tooltip.html(html)
+                      .style("left", (d3.event.pageX + 15) + "px")
+                      .style("top", (d3.event.pageY - 28) + "px")
+                    .transition()
+                      .duration(200) // ms
+                      .style("opacity", .9)
+
+              };
+              // tooltip mouseout event handler
+              var tipMouseout = function(d) {
+                  tooltip.transition()
+                      .duration(300) // ms
+                      .style("opacity", 0); // don't care about position!
+              };
+
+
+              svg2.selectAll("circle")
+                .data(data)
+                .enter()
+                .append("circle")
+                .attr("class", "team")
+                .attr('r', '7px')
+                .attr('stroke-width', '2px')
+                .attr('cx', function(d){return xScale(d.Wins);})
+                .attr('cy', function(d){return yScale(d.Average_Age);})
+                .attr('fill', function(d){
+                    var fillTeam = d.Team
+                    return fillColor(fillTeam);
+                })
+                .attr('stroke', function(d){
+                    var strokeTeam = d.Team
+                    return strokeColor(strokeTeam);
+                })
+                .style("opacity", 0.5)
+                //.on("mouseover", tipMouseover)
+
+   
+                .on("mouseover", function(d,i){
+                    var currentState = this;
+                    d3.select(this).style('opacity', 1)
+                    tipMouseover(d);
+                })
+                //.on("mouseout", tipMouseout)
+                .on("mouseout", function(d,i){
+                    d3.select(this).style('opacity', 0.5)
+                    tipMouseout(d);
+                });
+
+                  
+                };
+
+                function readTeamAge(selectedSet) {
+                d3.selectAll("circle.team").each(function(d) {
+                  
+                  if (d.Team == selectedSet) {
+                    
+                    return d3.select(this).attr('r', 13).style("opacity", 2);
+                  }
+                    }
+                          )
+                          ;}
+
+
+
+}
+
+ function readTeam(selectedTeam) {
+                d3.selectAll("circle.dot").each(function(d) {
+                  
+                  if (d.TEAM == selectedTeam) {
+                    
+                    return d3.select(this).attr('r', 13).style("opacity", 2);
+                  }
+                    }
+                          )
+                          ;}
+
+
+  function readAge(selectedAge) {
+                d3.selectAll("circle.dot").each(function(d) {
+                  
+                  if (d.AGE == selectedAge.x) {
+                    
+                    return d3.select(this).attr('r', 13).style("opacity", 2);
+                  }
+                    }
+                          )
+                          ;}
+
+
+drawGraph('Three Point Attempts', 'Three Point Percentage');
+
+function setGraph() {
+	drawGraph($('#x-value').val(), $('#y-value').val());
+	
+}
+
+
+
+
+
+</script>
+</body>
+</html>
