@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>d3 Updating Bar Chart With Dropdown</title>
+        <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+        <style>
+        body {
+            font: 10px sans-serif;
+        }
+        select {
+            display: block;
+        }
+        .circle {
+            fill: purple;
+            stroke: black;
+            opacity: 0.5;
+        }
+
+         .hover {
+          fill: yellow;   
+      }
+
+        .axis path,
+        .axis line {
+            fill: none;
+            stroke: #000;
+            shape-rendering: crispEdges;
+        }
+
+       
+
+        #court {
+              
+              left: 40px;
+              right: 0px;
+              top: 150px;
+              bottom: 0px;
+            }
+
+          nav{
+              height: 60px;
+              background-color: black;
+              display: flex;
+            }
+
+            nav a{
+              color: white;
+              text-decoration: none;
+              margin: auto;
+            }
+        </style>
+    </head>
+    <body bgcolor="gray">
+
+            <nav>
+              <a href="index.html">Relationship Scatter Plot</a>
+              <a href="TeamStats.html">Team Statistic</a>
+              <a href="teamShot.html">Playoff Shot Location Chart</a>
+            </nav>
+
+         <p><span><label for="x-axis" font = "12px">Selecttion Dropdown</label></span>
+        <div id='vis-container'>
+
+
+          <svg id='court' width = 1000 height = 1000></svg>
+        </div>
+        
+        
+        <script type="text/javascript">
+            // Load and munge data, then make the visualization.
+            var fileName = "playoff_shots.csv";
+            //var locationFields = ['LOC_X','LOC_Y'];
+            var width = 1000;
+            var height = 1000;
+           
+            var made = {};
+            var shotMap = {};
+            d3.csv(fileName, function(error, data) {
+                
+                data.forEach(function(d) {
+
+                    var player = d.PLAYER_NAME;
+                    if (shotMap[player] == undefined) {
+                        shotMap[player] = [];
+                    }
+
+                    // { playerName: [ bar1Val, bar2Val, ... ] };
+                  
+                        shotMap[player].push({
+                           x: +d.LOC_X,
+                           y: +d.LOC_Y,
+                           made_miss: d.EVENT_TYPE,
+                           period: +d.PERIOD
+                        }
+                        );
+
+                });
+                makeVis(shotMap);
+                create_legend();
+            });
+
+            console.log(shotMap)
+
+            var svg = d3.select("svg")
+                      
+                      ;
+
+            var map_cover = svg.append("rect")
+                      .attr("width", 502*1.5+15)
+                      .attr("height", 440*1.5+15)
+                      .attr("x", 15)
+                      .attr("stroke-width", "10px")
+                      .attr("stroke", "black")
+                      .attr("y", 28)
+                      .attr("fill", "yellow")
+                      .style("opacity", 0.3)
+                      ;
+
+            var svg = d3.select("#vis-container");
+/*
+            svg.append("text")
+            .text("Select")
+            .attr("fill", "black")
+            .attr("transform", "translate(150, 20)") ;
+
+            */
+
+                      
+
+            function readMap(selectedPeriod) {
+                d3.selectAll("circle.circle").each(function(d) {
+                  
+                  if (d.period == selectedPeriod.period) {
+                    
+                    return d3.select(this).attr('r', 7).style("opacity", 1);
+                  }
+                    }
+                          )
+                          ;}
+
+            function create_legend() 
+
+              {
+                var quarter =[{legend:"Quarter 1",  color: "blue", value: 10, period: 1}, 
+                                {legend:"Quarter 2",  color: "orange", value:30, period: 2},
+                                {legend:"Quarter 3",  color: "red", value:50, period: 3},
+                                {legend:"Quarter 4",  color: "green", value:70, period: 4}
+                                ];
+
+                var svg = d3.select("svg");
+                      
+                var g = svg.append("g")
+                .attr("transform", "translate(700, 100)");
+
+                g.selectAll('rect.legend')
+                      .data(quarter)
+                      .enter()
+                      .append('rect')
+                      .attr('width', 20)
+                      .attr('height', 20)
+                      .style('fill', 'white')
+                      //.style("fill", function(d) {return d.color; })
+                      .attr("stroke", "black")
+                      .attr("x", 100)
+                      .attr("y", function(d) { return (d.value); })
+                      .attr("class", "legend")
+                      .on("click", function(d) {
+                         
+                          d3.select(this).style("fill", "blue"), 
+                          readMap(d);
+                      })
+
+                      .on("mouseout", function(d){
+                              d3.selectAll("circle.circle").attr("r", 5).style("opacity", 0.2);
+                             d3.select(this).style("fill", "white");
+                           })
+
+                      ;
+
+                g.selectAll('text')
+                      .data(quarter)
+                      .enter()
+                      .append('text')
+                      .text(function(d) {return d.legend; })
+                      
+                      .attr("x", 130)
+                      .attr("y", function(d) { return (d.value)+10; })
+                      .attr("font-size", "10px")
+                      .attr("stroke-width", "3px")
+                      .attr("fill", "black");
+
+              }
+
+
+
+
+
+            var makeVis = function(shotMap) {
+                // Define dimensions of vis
+                var margin = { top: 30, right: 50, bottom: 30, left: 50 },
+                    width  = 1000 - margin.left - margin.right,
+                    height = 1000 - margin.top  - margin.bottom;
+
+
+            var canvas = d3.select("#map")
+                  //.append("svg")
+                    .attr("width",  width  + margin.left + margin.right)
+                    .attr("height", height + margin.top  + margin.bottom)
+                  .append("g")
+                    .attr("transform", "translate(300,100)");
+
+            
+
+                // draw dots
+            var updateSelection = canvas.selectAll(".circles")
+              .data(shotMap);
+            updateSelection.enter()
+                .append("circle");
+            
+            updateSelection
+              .attr("class", "circle")
+              .attr("r", 5)
+              .attr("cx", function(d) { return   (d.x*2)+270;})
+              .attr("cy", function(d) { return (d.y*2)+58;})
+
+              .style("fill", function(d) {
+                 if (d.made_miss == "Made Shot") {return "blue";}
+                    else  {return "orange";}
+                            });
+            
+            updateSelection.exit().remove();
+         
+                
+                var updateBars = function(data) {
+            
+
+                var canvas = d3.select("#court").select("g");
+                  /*
+                    .attr("width",  width  + margin.left + margin.right)
+                    .attr("height", height + margin.top  + margin.bottom)
+                  .append("g")
+                    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+*/
+
+
+                    var circle = canvas.selectAll(".circle").data(data)
+
+                    circle.enter()
+                            .append("circle");
+
+                        // draw dots
+                    circle
+                        .attr("class", "circle")
+                        .attr("cx", function(d,i) { return (d.x*2)+270; })
+                        //.attr("width", xScale.rangeBand())
+                        .attr("cy", function(d,i) { return (d.y*2)+58; })
+                        //.attr("height", function(d,i) { return height - yScale(d); })
+                        .on("click", function(d) {
+                            console.log(d);})
+                        .attr('r', 5)
+                        .style("fill", function(d) {
+                                 if (d.made_miss == "Made Shot") {return "blue";}
+                                    else  {return "orange";}
+                                            });
+                        ;
+
+                    circle
+                        .transition().duration(250)
+                        .attr("cy", function(d,i) { return (d.y*2)+58; })
+                        //.attr("height", function(d,i) { return height - yScale(d); })
+                        ;
+
+                    circle.exit().remove();
+
+                };
+
+                // Handler for dropdown value change
+                var dropdownChange = function() {
+                    var newplayer = d3.select(this).property('value'),
+                        newData   = shotMap[newplayer];
+
+                    updateBars(newData);
+                };
+
+                // Get names of players, for dropdown
+                var players = Object.keys(shotMap).sort();
+
+                var dropdown = d3.select("#vis-container")
+                    .insert("select", "svg")
+                    .attr("transform", "translate(100)")
+                    .on("change", dropdownChange);
+
+                dropdown.selectAll("option")
+                    .data(players)
+                    .enter().append("option")
+                    .attr("value", function (d) { return d; })
+                    .text(function (d) {
+                        return d[0].toUpperCase() + d.slice(1,d.length); // capitalize 1st letter
+                    });
+
+                var initialData = shotMap[ players[0] ];
+                updateBars(initialData);
+            };
+            
+//create team selection
+
+            var teams = {};
+            var teamMap = {};
+            d3.csv(fileName, function(error, data) {
+                
+                data.forEach(function(d) {
+                    var team = d.TEAM_NAME;
+
+
+                    var player = d.PLAYER_NAME;
+
+
+                    if (teamMap[team] == undefined) {
+                        teamMap[team] = [];
+                    }
+                    /*
+                    teamMap[team].push({
+                           player : d.PLAYER_NAME
+                        }
+                        );
+                        */
+/*
+                    if (teamMap[team][player] == undefined) {
+                        teamMap[team][player] = [];
+                    }
+                    */
+                    // { playerName: [ bar1Val, bar2Val, ... ] };
+                  
+                        teamMap[team].push({
+                           x: +d.LOC_X,
+                           y: +d.LOC_Y,
+                           made_miss: d.EVENT_TYPE,
+                           period: +d.PERIOD
+                        }
+                        );
+                });
+                makeVis(teamMap);
+                ;
+            });
+
+            console.log(teamMap)
+
+         var makeVis = function(teamMap) {
+                // Define dimensions of vis
+                var margin = { top: 30, right: 50, bottom: 30, left: 50 },
+                    width  = 1000 - margin.left - margin.right,
+                    height = 1000 - margin.top  - margin.bottom;
+
+
+            var canvas = d3.select("#map")
+                  //.append("svg")
+                    .attr("width",  width  + margin.left + margin.right)
+                    .attr("height", height + margin.top  + margin.bottom)
+                  .append("g")
+                    .attr("transform", "translate(300,100)");
+
+            
+
+                // draw dots
+            var updateSelection = canvas.selectAll(".circles")
+              .data(teamMap);
+            updateSelection.enter()
+                .append("circle");
+            
+            updateSelection
+              .attr("class", "circle")
+              .attr("r", 5)
+              .attr("cx", function(d) { return   (d.x*1.5)+400;})
+              .attr("cy", function(d) { return (d.y*1.5)+80;})
+              .on("click", function(d) {
+                            console.log(d);})
+              .style("fill", function(d) {
+                 if (d.made_miss == "Made Shot") {return "blue";}
+                    else  {return "orange";}
+                            });
+            
+            updateSelection.exit().remove();
+         
+                
+                var updateLocation = function(data) {
+            
+
+                var canvas = d3.select("#court").select("g");
+                  /*
+                    .attr("width",  width  + margin.left + margin.right)
+                    .attr("height", height + margin.top  + margin.bottom)
+                  .append("g")
+                    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+*/
+
+
+                    var circle = canvas.selectAll(".circle").data(data)
+
+                    circle.enter()
+                            .append("circle");
+
+                        // draw dots
+                    circle
+                        .attr("class", "circle")
+                        .attr("cx", function(d,i) { return (d.x*1.5)+400; })
+                        //.attr("width", xScale.rangeBand())
+                        .attr("cy", function(d,i) { return (d.y*1.5)+80; })
+                        //.attr("height", function(d,i) { return height - yScale(d); })
+                        .on("click", function(d) {
+                            console.log(d);})
+                        .attr('r', 5)
+                        .style("fill", function(d) {
+                                 if (d.made_miss == "Made Shot") {return "blue";}
+                                    else  {return "orange";}
+                                            });
+                        ;
+
+                    circle
+                        .transition().duration(250)
+                        .attr("y", function(d,i) { return (d.y*1.5)+80; })
+                        //.attr("height", function(d,i) { return height - yScale(d); })
+                        ;
+
+                    circle.exit().remove();
+
+                };
+
+                // Handler for dropdown value change
+                var dropdownChange = function() {
+                    var newteam = d3.select(this).property('value'),
+                        newData   = teamMap[newteam];
+
+                    updateLocation(newData);
+                };
+
+                // Get names of players, for dropdown
+                var teams = Object.keys(teamMap).sort();
+
+                var dropdown = d3.select("#vis-container")
+                    .insert("select", "svg")
+                    .on("change", dropdownChange);
+
+                dropdown.selectAll("option")
+                    .data(teams)
+                    .enter().append("option")
+                    .attr("value", function (d) { return d; })
+                    .text(function (d) {
+                        return d[0].toUpperCase() + d.slice(1,d.length); // capitalize 1st letter
+                    });
+
+                var initialData = teamMap[ teams[0] ];
+                updateLocation(initialData);
+            };
+
+
+//draw court
+
+            const margin = { left: 20, right: 20, top: 20, bottom: 20 };
+            const court_xScale = d3.scale.linear()
+                                     .domain([-25, 25]);
+        const court_yScale = d3.scale.linear()
+                                     .domain([-4,43]);
+
+           // var chartDiv = document.getElementById('court');
+        var court = d3.select('#court');
+        //court.attr('width', 550)
+             //.attr('height', 550/50*47)
+
+        court.append('table');
+
+        var heat_g = court.append('g')
+        var court_g = court.append('g');
+        var Basket = court_g.append('circle');
+        var Backboard = court_g.append('rect');
+        var Outterbox = court_g.append('rect');
+        var Innerbox = court_g.append('rect');
+        var CornerThreeLeft = court_g.append('rect');
+        var CornerThreeRight = court_g.append('rect');
+        var OuterLine = court_g.append('rect');
+        var RestrictedArea = court_g.append('path')
+        var TopFreeThrow = court_g.append('path')
+        var BottomFreeThrow = court_g.append('path')
+        var ThreeLine = court_g.append('path')
+        var CenterOuter = court_g.append('path')
+        var CenterInner = court_g.append('path')
+
+        draw_court();
+
+            function add_court_component(){
+    var Basket = court_g.append('circle');
+    var Backboard = court_g.append('rect');
+    var Outterbox = court_g.append('rect');
+    var Innerbox = court_g.append('rect');
+    var CornerThreeLeft = court_g.append('rect');
+    var CornerThreeRight = court_g.append('rect');
+    var OuterLine = court_g.append('rect');
+}
+
+function draw_court(){
+    const width = 550*1.49;
+    const height = width/50*47;
+    court_g.attr("width", width)
+           .attr("height", height)
+
+    const innerWidth = width - margin.left - margin.right;
+    const innerHeight = height - margin.top - margin.bottom;
+
+    court_xScale.range([margin.left, innerWidth])
+              .nice();
+
+    court_yScale.range([margin.top, innerHeight])
+              .nice();
+
+    Basket.attr('cx', court_xScale(0))
+           .attr('cy', court_yScale(-0.75))
+           .attr('r', court_yScale(0.75)-court_yScale(0))
+           .style('fill', 'None')
+           .style('stroke', 'black');
+
+    Backboard.attr('x', court_xScale(-3))
+           .attr('y', court_yScale(-1.5))
+           .attr('width', court_xScale(3)-court_xScale(-3))
+           .attr('height', 1)
+           .style('fill', 'none')
+           .style('stroke', 'black');
+
+
+    Outterbox
+           .attr('x', court_xScale(-8))
+           .attr('y', court_yScale(-4))
+           .attr('width', court_xScale(8)-court_xScale(-8))
+           .attr('height', court_yScale(15)-court_yScale(-4))
+           .style('fill', 'none')
+           .style('stroke', 'black');
+
+
+    Innerbox
+           .attr('x', court_xScale(-6))
+           .attr('y', court_yScale(-4))
+           .attr('width', court_xScale(6)-court_xScale(-6))
+           .attr('height', court_yScale(15)-court_yScale(-4))
+           .style('fill', 'none')
+           .style('stroke', 'black');
+
+
+    CornerThreeLeft
+           .attr('x', court_xScale(-22))
+           .attr('y', court_yScale(-4))
+           .attr('width', 1)
+           .attr('height', court_yScale(10)-court_yScale(-4))
+           .style('fill', 'none')
+           .style('stroke', 'black');
+
+    CornerThreeRight
+           .attr('x', court_xScale(22))
+           .attr('y', court_yScale(-4))
+           .attr('width', 1)
+           .attr('height', court_yScale(10)-court_yScale(-4))
+           .style('fill', 'none')
+           .style('stroke', 'black');
+
+    OuterLine
+           .attr('x', court_xScale(-25))
+           .attr('y', court_yScale(-4))
+           .attr('width', court_xScale(25)-court_xScale(-25))
+           .attr('height', court_yScale(43)-court_yScale(-4))
+           .style('fill', 'none')
+           .style('stroke', 'black');
+
+    appendArcPath(RestrictedArea, court_xScale(3)-court_xScale(0), (90)*(Math.PI/180), (270)*(Math.PI/180))
+        .attr('fill', 'none')
+        .attr("stroke", "black")
+        .attr("transform", "translate(" + court_xScale(0) + ", " +court_yScale(-0.75) +")");
+
+
+    appendArcPath(TopFreeThrow, court_xScale(6)-court_xScale(0), (90)*(Math.PI/180), (270)*(Math.PI/180))
+        .attr('fill', 'none')
+        .attr("stroke", "black")
+        .attr("transform", "translate(" + court_xScale(0) + ", " +court_yScale(15) +")");
+
+
+    appendArcPath(BottomFreeThrow, court_xScale(6)-court_xScale(0), (-90)*(Math.PI/180), (90)*(Math.PI/180))
+        .attr('fill', 'none')
+        .attr("stroke", "black")
+        .style("stroke-dasharray", ("3, 3"))
+        .attr("transform", "translate(" + court_xScale(0) + ", " +court_yScale(15) +")");
+
+
+    var angle = Math.atan((10-0.75)/(22))* 180 / Math.PI
+    var dis = court_yScale(18);
+    appendArcPath(ThreeLine, dis, (angle+90)*(Math.PI/180), (270-angle)*(Math.PI/180))
+        .attr('fill', 'none')
+        .attr("stroke", "black")
+        .attr('class', 'shot-chart-court-3pt-line')
+        .attr("transform", "translate(" + court_xScale(0) + ", " +court_yScale(0) +")");
+
+
+    appendArcPath(CenterOuter, court_xScale(6)-court_xScale(0), (-90)*(Math.PI/180), (90)*(Math.PI/180))
+        .attr('fill', 'none')
+        .attr("stroke", "black")
+        .attr("transform", "translate(" + court_xScale(0) + ", " +court_yScale(43) +")");
+
+    appendArcPath(CenterInner, court_xScale(2)-court_xScale(0), (-90)*(Math.PI/180), (90)*(Math.PI/180))
+        .attr('fill', 'none')
+        .attr("stroke", "black")
+        .attr("transform", "translate(" + court_xScale(0) + ", " +court_yScale(43) +")");
+}
+
+
+function appendArcPath(base, radius, startAngle, endAngle) {
+      var points = 30;
+
+      var angle = d3.scale.linear()
+          .domain([0, points - 1])
+          .range([startAngle, endAngle]);
+
+      var line = d3.svg.line.radial()
+          .radius(radius)
+          .angle(function(d, i) { return angle(i); });
+
+      return base.datum(d3.range(points))
+          .attr("d", line);
+}
+
+        </script>
+    </body>
+</html>
