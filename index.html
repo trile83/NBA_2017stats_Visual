@@ -19,12 +19,12 @@
         }
 
         .d3-tip {
-  line-height: 1;
-  padding: 6px;
-  background: wheat;
-  border-radius: 4px solid black;
-  font-size: 12px;
-}
+			  line-height: 1;
+			  padding: 6px;
+			  background: wheat;
+			  border-radius: 4px solid black;
+			  font-size: 12px;
+			}
 
 p {
   font-family: Helvetica;
@@ -309,6 +309,13 @@ function drawGraph(xText, yText) {
 		.append("g")
 		  .attr("class", "legend");
 
+	  var tool_tip = d3.tip()
+		  .attr("class", "d3-tip")
+		  .offset([20, 120])
+		  .html("<p>This is a SVG inside a tooltip:</p><div id='tipDiv'></div>");
+
+		svg.call(tool_tip);
+
 		
 
 	  // draw legend colored rectangles
@@ -329,10 +336,11 @@ function drawGraph(xText, yText) {
                           d3.select(this).style("opacity", 0.5), 
                           readTeam(d),readTeamAge(d);
                       })
-		  
+
 
           .on("mouseout", function(d){
                   d3.selectAll("circle.dot").attr("r", 7).style("opacity", 0.2);
+                  d3.selectAll("circle.team").attr("r", 7).style("opacity", 0.2);
                   d3.select(this).style("opacity", 1)
                  ;
                })
@@ -363,7 +371,7 @@ var values = [25,22,22,24,24,22,31,33,25,26,20,24,23,24,25,27,29,25,30,24,34,24,
 // A formatter for counts.
 var formatCount = d3.format(",.0f");
 
-var margin1 = {top: 40, right: 30, bottom: 30, left: 0},
+var margin1 = {top: 40, right: 30, bottom: 30, left: 5},
     w = 700- margin1.left - margin1.right,
     h = 400 - margin1.top - margin1.bottom;
 
@@ -392,7 +400,7 @@ var y = d3.scale.linear()
 
 var x_Axis = d3.svg.axis()
     .scale(x)
-    .orient("bottom");
+    .orient("bottom").ticks(20);
 
 var svg1 = d3.select("#div1").append("svg")
     .attr("width", w + margin1.left + margin1.right)
@@ -416,11 +424,12 @@ bar.append("rect")
     .on("mouseover", function(d) {
                          
                           d3.select(this).style("opacity", 0.5), 
-                          readAge(d);
+                          readAge(d),readAvgAge(d);
                       })
 
     .on("mouseout", function(d){
                   d3.selectAll("circle.dot").attr("r", 7).style("opacity", 0.2);
+                  d3.selectAll("circle.team").attr("r", 7).style("opacity", 0.2);
                   d3.select(this).style("opacity", 1)
                  ;
                })
@@ -461,24 +470,26 @@ svg1.append("text")
                 makeChart(stats);
             });
 
-            console.log(stats);
+            //console.log(stats);
 
 
 
      var makeChart = function(data){
 
-            var chart_width = 700;
+            var chart_width = 500;
             var chart_height = 250;
             var xScale = d3.scale.linear();
             var yScale = d3.scale.linear();
-            xScale.domain([19,42]).range([0, chart_width]);
+            
+            xScale.domain([19,35]).range([0, chart_width]);
             yScale.domain([10,70]).range([chart_height, 0]);
+
             function round(value, decimals) {
                 return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
                 }
             var xAxis = d3.svg.axis()
                 .scale(xScale)
-                .orient('bottom');
+                .orient('bottom').ticks(15);
 
             var yAxis = d3.svg.axis()
                 .scale(yScale)
@@ -575,7 +586,7 @@ svg1.append("text")
                 .attr("class", "team")
                 .attr('r', '7px')
                 .attr('stroke-width', '2px')
-                .attr('cx', function(d){return xScale(d.Average_Age);})
+                .attr('cx', function(d){return xScale(d.Average_Age)+50;})
                 .attr('cy', function(d){return yScale(d.Wins);})
                 .attr('fill', function(d){
                     var fillTeam = d.Team
@@ -606,10 +617,21 @@ svg1.append("text")
                   
                 };
 
-                function readTeamAge(selectedSet) {
+function readTeamAge(selectedSet) {
                 d3.selectAll("circle.team").each(function(d) {
                   
                   if (d.Team == selectedSet) {
+                    
+                    return d3.select(this).attr('r', 13).style("opacity", 2);
+                  }
+                    }
+                          )
+                          ;}
+
+function readAvgAge(selectedData) {
+                d3.selectAll("circle.team").each(function(d) {
+                  
+                  if (Math.floor(d.Average_Age) == selectedData.x ) {
                     
                     return d3.select(this).attr('r', 13).style("opacity", 2);
                   }
