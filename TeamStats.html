@@ -45,6 +45,19 @@
         .tick line{
             opacity: 0.2;
           }
+          
+         .tooltip {
+            position: absolute;
+            font-size: 12px;
+            width:  auto;
+            height: auto;
+            padding: 2px;               
+            font: 12px sans-serif;      
+            background: lightsteelblue; 
+            border: 0px;        
+            border-radius: 8px;         
+            pointer-events: none;           
+        }
 
 
           .line{
@@ -53,18 +66,6 @@
             stroke-width: 2px;
         }
 
-        #map {
-              position: fixed;
-              
-            }
-
-        #court {
-              position: fixed;
-              left: 40px;
-              right: 0px;
-              top: 85px;
-              bottom: 0px;
-            }
 
             
           nav{
@@ -105,8 +106,8 @@
             <svg id = 'svg2' width = "350" height = "300"style= "float: right"></svg>
             <svg id = 'svg4' width = "750" height = "300"style= "float: left"> </svg>
             <svg id = 'svg3' width = "350" height = "300"> </svg>
-            <svg id = 'svg1' width = "350" height = "300"style= "float: left"> </svg>
-            <svg id = 'svg5' width = "350" height = "300"style= "float: left"> </svg>
+            <svg id = 'svg1' width = "400" height = "300"style= "float: left"> </svg>
+            <svg id = 'svg5' width = "400" height = "300"style= "float: left"> </svg>
             
             <svg id = 'svg6' width = "400" height = "300"style= "float: left"> </svg>
 
@@ -198,6 +199,27 @@
 
             var makeVis = function(teamMap,teamAge,teamLocation,teamMonth,teamShootingStats,teamPoints) {
 
+                var tooltip = d3.select("#vis-container").append("div")
+                  .attr("class", "tooltip")
+                  .style("opacity", 0);
+
+                var tipMouseover = function(d) {
+                  var html  = d 
+                  ;
+                  tooltip.html(html)
+                      .style("left", (d3.event.pageX + 5) + "px")
+                      .style("top", (d3.event.pageY - 15) + "px")
+                    .transition()
+                      .duration(200)
+                      .style("opacity", .9)
+               };
+
+                var tipMouseout = function(d) {
+                  tooltip.transition()
+                      .duration(300)
+                      .style("opacity", 0);
+              };
+
 
                 // Define dimensions of vis
                 var margin = { top: 30, right: 50, bottom: 30, left: 50 },
@@ -278,6 +300,14 @@
                         .attr("y", function(d,i) { return yScale(d); })
                         .style("fill","purple")
                         .style("opacity", 0.8)
+                        .on("mouseover", function(d) {
+                          d3.select(this).style('opacity', 0.2).style('stroke-width', '2.86px')
+                          tipMouseover(d);
+                      })
+                      .on("mouseout", function(d) {
+                          d3.select(this).style('opacity', 0.8).attr('stroke-width', '2px')
+                          tipMouseout(d);
+                      })
                         .attr("height", function(d,i) { return height - yScale(d); });
 
                     // Update old ones, already have x / width from before
@@ -381,8 +411,16 @@
                         .attr("x", function(d,i) { return xScale2( locations[i] ); })
                         .attr("width", xScale2.rangeBand())
                         .attr("y", function(d,i) { return yScale2(d); })
+                        .on("mouseover", function(d) {
+                          d3.select(this).style('opacity', 0.2).style('stroke-width', '2.86px')
+                          tipMouseover(d);
+                      })
+                      .on("mouseout", function(d) {
+                          d3.select(this).style('opacity', 0.8).attr('stroke-width', '2px')
+                          tipMouseout(d);
+                      })
                         .attr("height", function(d,i) { return height - yScale2(d); })
-                        .style("fill", "lightgreen");
+                        .style("fill", "green");
 
                     // Update old ones, already have x / width from before
                     bars2
@@ -476,6 +514,14 @@
                         .attr("x", function(d,i) { return xScale1( ageBins[i] ); })
                         .attr("width", xScale1.rangeBand())
                         .attr("y", function(d,i) { return yScale1(d); })
+                        .on("mouseover", function(d) {
+                          d3.select(this).style('opacity', 0.2).style('stroke-width', '2.86px')
+                          tipMouseover(d);
+                      })
+                      .on("mouseout", function(d) {
+                          d3.select(this).style('opacity', 0.8).attr('stroke-width', '2px')
+                          tipMouseout(d);
+                      })
                         .style("fill","blue")
                         .attr("height", function(d,i) { return height - yScale1(d); });
 
@@ -583,6 +629,14 @@
                             .attr("class", "dot")
                             .attr("r",5)
                             .style("fill","orange")
+                            .on("mouseover", function(d) {
+                          d3.select(this).style('opacity', 0.2).style('stroke-width', '2.86px')
+                          tipMouseover(d);
+                      })
+                      .on("mouseout", function(d) {
+                          d3.select(this).style('opacity', 0.8).attr('stroke-width', '2px')
+                          tipMouseout(d);
+                      })
                             .attr("cx", function(d,i) { return xScale3(months[i])+20; })
                             .attr("cy", function(d) { return yScale3(d); });
 
@@ -688,6 +742,14 @@
                         .attr("x", function(d,i) { return xScale4( shooting_stats[i] ); })
                         .attr("width", xScale4.rangeBand())
                         .attr("y", function(d,i) { return yScale4(d); })
+                        .on("mouseover", function(d) {
+                          d3.select(this).style('opacity', 0.2).style('stroke-width', '2.86px')
+                          tipMouseover(d);
+                      })
+                      .on("mouseout", function(d) {
+                          d3.select(this).style('opacity', 0.8).attr('stroke-width', '2px')
+                          tipMouseout(d);
+                      })
                         .attr("height", function(d,i) { return height - yScale4(d); })
                         .style("fill", "orange");
 
@@ -740,7 +802,7 @@
                         .sort(null);
 
                     var arc = d3.svg.arc()
-                        .innerRadius(radius - 100)
+                        .innerRadius(radius - 80)
                         .outerRadius(radius - 20);
                     var outerArc = d3.svg.arc()
                         .innerRadius(radius * 0.9)
@@ -793,9 +855,39 @@
     var slice = canvas5.select(".slices").selectAll("path.slice")
         .data(pie(data));
 
+    var tooltip = d3.select("#vis-container").append("div")
+                  .attr("class", "tooltip")
+                  .style("opacity", 0);
+
+                var tipMouseover = function(d) {
+                  var html  = d.data
+                  ;
+                  tooltip.html(html)
+                      .style("left", (d3.event.pageX + 5) + "px")
+                      .style("top", (d3.event.pageY - 15) + "px")
+                    .transition()
+                      .duration(200)
+                      .style("opacity", .9)
+               };
+
+                var tipMouseout = function(d) {
+                  tooltip.transition()
+                      .duration(300)
+                      .style("opacity", 0);
+              };
+
+
     slice.enter()
         .insert("path")
         .style("fill", function(d,i) { return color(i); })
+        .on("mouseover", function(d) {
+                          d3.select(this).style('opacity', 0.2).style('stroke-width', '2.86px')
+                          tipMouseover(d);
+                      })
+                      .on("mouseout", function(d) {
+                          d3.select(this).style('opacity', 0.8).attr('stroke-width', '2px')
+                          tipMouseout(d);
+                      })
         .attr("class", "slice");
 
     slice       
