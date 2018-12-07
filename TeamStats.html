@@ -212,7 +212,7 @@
                 // Make y scale, the domain will be defined on bar update
                 var yScale = d3.scale.linear()
                     //.domain([0, d3.max(teamMap, function(d) { return d.values; })])
-                    .domain([0,50])
+                    .domain([0,60])
                     .range([height, 0]);
 
                   
@@ -262,7 +262,7 @@
                     // First update the y-axis domain to match data
                     //yScale.domain( d3.extent(data));
                     //yScale.domain([0, d3.max(data, function(d) { return d; })]);
-                    yScale.domain([0,50]);
+                    yScale.domain([0,60]);
                     yAxisHandleForUpdate.call(yAxis);
 
                     var bars = canvas.selectAll(".bar").data(data);
