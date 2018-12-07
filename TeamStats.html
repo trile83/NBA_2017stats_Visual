@@ -102,13 +102,13 @@
           <a href="teamShot.html">Playoff Shot Location Chart</a>
         </nav>
         <div id='vis-container'>
-            <svg id = 'svg2' width = "350" height = "300"style= "float: left"></svg>
-            <svg id = 'svg4' width = "750" height = "300"> </svg>
-            <svg id = 'svg1' width = "350" height = "300"> </svg>
-            <svg id = 'svg3' width = "350" height = "300"style= "float: left"> </svg>
-            
+            <svg id = 'svg2' width = "350" height = "300"style= "float: right"></svg>
+            <svg id = 'svg4' width = "750" height = "300"style= "float: left"> </svg>
+            <svg id = 'svg3' width = "350" height = "300"> </svg>
+            <svg id = 'svg1' width = "350" height = "300"style= "float: left"> </svg>
             <svg id = 'svg5' width = "350" height = "300"style= "float: left"> </svg>
-            <svg id = 'svg6' width = "350" height = "300"> </svg>
+            
+            <svg id = 'svg6' width = "400" height = "300"style= "float: left"> </svg>
 
 
         </div>
@@ -134,9 +134,9 @@
            
            var months =["Oct","Nov","Dec","Jan","Feb","March","Apr"];
 
-           var shooting_stats = ["ThrPtFGPCT","TwoPtFGPCT"];
+           var shooting_stats = ["ThreePointPercentage","TwoPointPercentage"];
 
-           var points = ["ThrPt","TwoPt","FT"];
+           var points = ["ThreePoint","TwoPoint","FreeThrow"];
             
 
             var fileName = "Team.csv";
@@ -213,7 +213,7 @@
                 // Make y scale, the domain will be defined on bar update
                 var yScale = d3.scale.linear()
                     //.domain([0, d3.max(teamMap, function(d) { return d.values; })])
-                    .domain([0,60])
+                    .domain([0,50])
                     .range([height, 0]);
 
                   
@@ -227,7 +227,7 @@
                     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
                 canvas.append("text")
-                .text("Point per Game for Each Position")
+                .text("Points per Game for Each Position")
                 .attr("font-size", "14px")
                 .attr("transform", "translate(60,15)");
 
@@ -257,13 +257,13 @@
                     .attr("y", 6)
                     .attr("dy", ".71em")
                     .style("text-anchor", "end")
-                    .text("Value");
+                    .text("Points");
 
                 var updateBars = function(data) {
                     // First update the y-axis domain to match data
                     //yScale.domain( d3.extent(data));
                     //yScale.domain([0, d3.max(data, function(d) { return d; })]);
-                    yScale.domain([0,60]);
+                    yScale.domain([0,50]);
                     yAxisHandleForUpdate.call(yAxis);
 
                     var bars = canvas.selectAll(".bar").data(data);
@@ -362,7 +362,7 @@
                     .attr("y", 6)
                     .attr("dy", ".71em")
                     .style("text-anchor", "end")
-                    .text("Value");
+                    .text("Percentage");
 
                 var updateHis1 = function(data) {
                     // First update the y-axis domain to match data
@@ -458,7 +458,7 @@
                     .attr("y", 6)
                     .attr("dy", ".71em")
                     .style("text-anchor", "end")
-                    .text("Value");
+                    .text("Number");
 
                 var updateHis = function(data) {
                     // First update the y-axis domain to match data
@@ -556,7 +556,7 @@
                     .attr("y", 6)
                     .attr("dy", ".71em")
                     .style("text-anchor", "end")
-                    .text("Value");
+                    .text("Percentage");
 
                 
                 var updateHis2 = function(data) {
@@ -669,7 +669,7 @@
                     .attr("y", 6)
                     .attr("dy", ".71em")
                     .style("text-anchor", "end")
-                    .text("Value");
+                    .text("Percentage");
 
                 var updateHis4 = function(data) {
                     // First update the y-axis domain to match data
