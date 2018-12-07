@@ -17,15 +17,40 @@
        
         .circle {
             fill: purple;
-            stroke: black;
+            //stroke: black;
             opacity: 0.5;
         }
 
         .axis path,
         .axis line {
             fill: none;
-            stroke: #000;
+            stroke: black;
             shape-rendering: crispEdges;
+        }
+        path.slice{
+            stroke-width:2px;
+        }
+
+        polyline{
+            opacity: .3;
+            stroke: black;
+            stroke-width: 2px;
+            fill: none;
+        }
+
+        .tick text{
+            font-size: 12px;
+          }
+
+        .tick line{
+            opacity: 0.2;
+          }
+
+
+          .line{
+            fill: none;
+            stroke: blue;
+            stroke-width: 2px;
         }
 
         #map {
@@ -41,6 +66,7 @@
               bottom: 0px;
             }
 
+            
           nav{
             height: 25px;
             background-color: steelblue;
@@ -76,10 +102,12 @@
           <a href="teamShot.html">Playoff Shot Location Chart</a>
         </nav>
         <div id='vis-container'>
-            <svg id = 'svg2' width = "800" height = "400"style= "float: left" style="color: pink"></svg>
-            <svg id = 'svg1' width = "600" height = "400"style= "float: right"> </svg>
-            <svg id = 'svg3' width = "800" height = "400"style= "float: left"> </svg>
-            <svg id = 'svg4' width = "600" height = "400"style= "float: right"> </svg>
+            <svg id = 'svg2' width = "350" height = "300"style= "float: left"></svg>
+            <svg id = 'svg1' width = "350" height = "300"> </svg>
+            <svg id = 'svg3' width = "350" height = "300"style= "float: left"> </svg>
+            <svg id = 'svg4' width = "750" height = "300"> </svg>
+            <svg id = 'svg5' width = "350" height = "300"style= "float: left"> </svg>
+            <svg id = 'svg6' width = "350" height = "300"> </svg>
 
 
         </div>
@@ -98,9 +126,16 @@
            var ageBins = ["19-22","23-26","27-30","30+"];
            
            
-           var locations = ["Home-WinPct","Road-WinPct","East-WinPct","West-WinPct","Atlantic-WinPct","Central-WinPct","SE-WinPct","NW-WinPct","Pacific-WinPct","SW-WinPct"];
            
-           var months =["Oct-WinPct","Nov-WinPct","Dec-WinPct","Jan-WinPct","Feb-WinPct","March-WinPct","Apr-WinPct"];
+
+           var locations = ["Home", "Road","East","West","Atlantic","Central", "Southeast","Northwest","Pacific","Southwest"];
+
+           
+           var months =["Oct","Nov","Dec","Jan","Feb","March","Apr"];
+
+           var shooting_stats = ["ThrPtFGPCT","TwoPtFGPCT"];
+
+           var points = ["ThrPt","TwoPt","FT"];
             
 
             var fileName = "Team.csv";
@@ -112,6 +147,8 @@
                 var stats = {};
                 var teamLocation = {};
                 var teamMonth ={};
+                var teamShootingStats = {};
+                var teamPoints = {};
                 data.forEach(function(d) {
                     var team = d.Team;
 
@@ -127,6 +164,8 @@
                     teamAge[team] = [];
                     teamLocation[team] = [];
                     teamMonth[team] = [];
+                    teamShootingStats[team] = [];
+                    teamPoints[team] = [];
                     
 
 
@@ -144,19 +183,25 @@
                     months.forEach(function(value) {
                         teamMonth[team].push( +d[value] );
                     });
+                    shooting_stats.forEach(function(value) {
+                        teamShootingStats[team].push( +d[value] );
+                    });
+                    points.forEach(function(value) {
+                        teamPoints[team].push( +d[value] );
+                    });
                 });
                 console.log(teamMonth);
-                makeVis(teamMap,teamAge,teamLocation,teamMonth);
+                makeVis(teamMap,teamAge,teamLocation,teamMonth,teamShootingStats,teamPoints);
                 //makePie(teamPie);
             });
 
-            var makeVis = function(teamMap,teamAge,teamLocation,teamMonth) {
+            var makeVis = function(teamMap,teamAge,teamLocation,teamMonth,teamShootingStats,teamPoints) {
 
 
                 // Define dimensions of vis
                 var margin = { top: 30, right: 50, bottom: 30, left: 50 },
-                    width  = 800 - margin.left - margin.right,
-                    height = 400 - margin.top  - margin.bottom;
+                    width  = 400 - margin.left - margin.right,
+                    height = 300 - margin.top  - margin.bottom;
 
 
                 // Make x scale
@@ -183,7 +228,7 @@
                 canvas.append("text")
                 .text("Point per Game for Each Position")
                 .attr("font-size", "14px")
-                .attr("transform", "translate(200,10)");
+                .attr("transform", "translate(60,15)");
 
                 // Make x-axis and add to canvas
                 var xAxis = d3.svg.axis()
@@ -222,6 +267,7 @@
 
                     var bars = canvas.selectAll(".bar").data(data);
 
+
                     // Add bars for new data
                     bars.enter()
                       .append("rect")
@@ -229,8 +275,8 @@
                         .attr("x", function(d,i) { return xScale( nutritionFields[i] ); })
                         .attr("width", xScale.rangeBand())
                         .attr("y", function(d,i) { return yScale(d); })
-                        .style("fill", function(d,i) {if (nutritionFields[i] == "PG") {return "red";}})
                         .style("fill","purple")
+                        .style("opacity", 0.8)
                         .attr("height", function(d,i) { return height - yScale(d); });
 
                     // Update old ones, already have x / width from before
@@ -243,6 +289,7 @@
 
                     // Remove old ones
                     bars.exit().remove();
+
                 };
 
                 
@@ -257,7 +304,10 @@
 ////////////////////////////////////////////////////////////////////////////////
 //create bar chart for team region wins
 
-                
+                // Define dimensions of vis
+                var margin = { top: 30, right: 50, bottom: 30, left: 50 },
+                    width  = 800 - margin.left - margin.right,
+                    height = 300 - margin.top  - margin.bottom;
 
                 var xScale2 = d3.scale.ordinal()
                     .domain(locations)
@@ -272,7 +322,7 @@
                   
 
                 // Create canvas
-                var canvas2 = d3.select("#svg3")
+                var canvas2 = d3.select("#svg4")
                   .append("svg")
                     .attr("width",  width  + margin.left + margin.right)
                     .attr("height", 100+ height + margin.top  + margin.bottom)
@@ -293,7 +343,7 @@
                  canvas2.append("text")
                 .text("Win Percentage per Region")
                 .attr("font-size", "14px")
-                .attr("transform", "translate(200,10)");
+                .attr("transform", "translate(100,15)");
 
 
 
@@ -331,7 +381,7 @@
                         .attr("width", xScale2.rangeBand())
                         .attr("y", function(d,i) { return yScale2(d); })
                         .attr("height", function(d,i) { return height - yScale2(d); })
-                        .style("fill", "orange");
+                        .style("fill", "lightgreen");
 
                     // Update old ones, already have x / width from before
                     bars2
@@ -347,12 +397,12 @@
 
                 }
 
-                ///////////////////////////////////////////////////////////////////////////////
+ ///////////////////////////////////////////////////////////////////////////////
 //create age histogram
 // Make his
                var margin = { top: 30, right: 50, bottom: 30, left: 50 },
-                    width  = 600 - margin.left - margin.right,
-                    height = 400 - margin.top  - margin.bottom;
+                    width  = 400 - margin.left - margin.right,
+                    height = 300 - margin.top  - margin.bottom;
 
 
                 var xScale1 = d3.scale.ordinal()
@@ -389,7 +439,7 @@
                  canvas1.append("text")
                 .text("Age Distribution")
                 .attr("font-size", "14px")
-                .attr("transform", "translate(200,10)");
+                .attr("transform", "translate(100,15)");
 
 
 
@@ -446,6 +496,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////////
 //create bar chart for Month performances
+
                 
                 var xScale3 = d3.scale.ordinal()
                     .domain(months)
@@ -460,7 +511,7 @@
                   
 
                 // Create canvas
-                var canvas3 = d3.select("#svg4")
+                var canvas3 = d3.select("#svg3")
                   .append("svg")
                     .attr("width",  width  + margin.left + margin.right)
                     .attr("height", 100+ height + margin.top  + margin.bottom)
@@ -471,7 +522,10 @@
                 // Make x-axis and add to canvas
                 var xAxis3 = d3.svg.axis()
                     .scale(xScale3)
-                    .orient("bottom");
+                    .orient("bottom")
+                    .innerTickSize(-height)
+                    .outerTickSize(0)
+                    .tickPadding(10);
 
                 canvas3.append("g")
                     .attr("class", "x axis")
@@ -481,13 +535,16 @@
                  canvas3.append("text")
                 .text("Win Percentage by Month")
                 .attr("font-size", "14px")
-                .attr("transform", "translate(200,10)");
+                .attr("transform", "translate(100,15)");
 
 
                 // Make y-axis and add to canvas
                 var yAxis3 = d3.svg.axis()
                     .scale(yScale3)
-                    .orient("left");
+                    .orient("left")
+                    .innerTickSize(-width)
+                    .outerTickSize(0)
+                    .tickPadding(10);
 
                 var yAxisHandleForUpdate3 = canvas3.append("g")
                     .attr("class", "y axis")
@@ -505,14 +562,28 @@
                     // First update the y-axis domain to match data
                     //yScale.domain( d3.extent(data));
                     //yScale.domain([0, d3.max(data, function(d) { return d; })]);
+                    canvas3.select("#linechart").transition().duration(250);
                     canvas3.select("#linechart").remove();
+                    canvas3.selectAll("#linedot").remove();
+
+                    
 
                     yScale3.domain([0,100]);
                     yAxisHandleForUpdate3.call(yAxis3);
 
                     var pathGenerator = d3.svg.line()
-                        .x(function(d,i) { return xScale3(months[i]); })
+                        .x(function(d,i) { return xScale3(months[i])+20; })
                         .y(function(d) { return yScale3(d); });
+
+                    canvas3.selectAll("dot")
+                            .data(data)
+                        .enter().append("circle")
+                        .attr("id", "linedot")
+                            .attr("class", "dot")
+                            .attr("r",5)
+                            .style("fill","orange")
+                            .attr("cx", function(d,i) { return xScale3(months[i])+20; })
+                            .attr("cy", function(d) { return yScale3(d); });
 
 
                     //var bars3 = canvas3.selectAll(".bar").data(data);
@@ -528,14 +599,289 @@
                             .style('stroke-width', '3px')
                             .attr('d', pathGenerator(data));
 
-                    canvas3
+                    // define the area
+                    
+
+                    lines
                         .transition().duration(250)
                         //.attr("y", function(d,i) { return yScale3(d); })
                         //.attr("height", function(d,i) { return height - yScale3(d); })
                         ;
-                           
 
                 }
+
+//////////////////////////////////////////////////////////////////////////////////////////
+// Define dimensions of vis
+                var margin = { top: 30, right: 50, bottom: 30, left: 50 },
+                    width  = 400 - margin.left - margin.right,
+                    height = 300 - margin.top  - margin.bottom;
+
+                var xScale4 = d3.scale.ordinal()
+                    .domain(shooting_stats)
+                    .rangeRoundBands([0, width], 0.1);
+
+                // Make y scale, the domain will be defined on bar update
+                var yScale4 = d3.scale.linear()
+                    //.domain([0, d3.max(teamMap, function(d) { return d.values; })])
+                    .domain([0,100])
+                    .range([height, 0]);
+
+                  
+
+                // Create canvas
+                var canvas4 = d3.select("#svg5")
+                  .append("svg")
+                    .attr("width",  width  + margin.left + margin.right)
+                    .attr("height", 100+ height + margin.top  + margin.bottom)
+                  .append("g")
+                    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+                // Make x-axis and add to canvas
+                var xAxis4 = d3.svg.axis()
+                    .scale(xScale4)
+                    .orient("bottom");
+
+                canvas4.append("g")
+                    .attr("class", "x axis")
+                    .attr("transform", "translate(0," + height + ")")
+                    .call(xAxis4);
+
+                 canvas4.append("text")
+                .text("Shot Efficiency")
+                .attr("font-size", "14px")
+                .attr("transform", "translate(100,15)");
+
+
+
+                // Make y-axis and add to canvas
+                var yAxis4 = d3.svg.axis()
+                    .scale(yScale4)
+                    .orient("left");
+
+                var yAxisHandleForUpdate4 = canvas4.append("g")
+                    .attr("class", "y axis")
+                    .call(yAxis4);
+
+                yAxisHandleForUpdate4.append("text")
+                    .attr("transform", "rotate(-90)")
+                    .attr("y", 6)
+                    .attr("dy", ".71em")
+                    .style("text-anchor", "end")
+                    .text("Value");
+
+                var updateHis4 = function(data) {
+                    // First update the y-axis domain to match data
+                    //yScale4.domain( d3.extent(data));
+                    //yScale.domain([0, d3.max(data, function(d) { return d; })]);
+                    yScale4.domain([0.3,0.6]);
+                    yAxisHandleForUpdate4.call(yAxis4);
+
+                    var bars4 = canvas4.selectAll(".bar").data(data);
+
+                    // Add bars for new data
+                    bars4.enter()
+                      .append("rect")
+                        .attr("class", "bar")
+                        
+                        .attr("x", function(d,i) { return xScale4( shooting_stats[i] ); })
+                        .attr("width", xScale4.rangeBand())
+                        .attr("y", function(d,i) { return yScale4(d); })
+                        .attr("height", function(d,i) { return height - yScale4(d); })
+                        .style("fill", "orange");
+
+                    // Update old ones, already have x / width from before
+                    bars4
+                        .transition().duration(250)
+                        .attr("y", function(d,i) { return yScale4(d); })
+                        .attr("height", function(d,i) { return height - yScale4(d); })
+                        ;
+
+
+                    // Remove old ones
+                    bars4.exit().remove();
+             
+
+                }
+
+//////////////////////////////////////////////////////////////////////////////////
+//create piechart
+                var margin = { top: 30, right: 50, bottom: 30, left: 50 },
+                    width  = 400 - margin.left - margin.right,
+                    height = 300 - margin.top  - margin.bottom
+                    radius = Math.min(width, height) / 2;
+
+                canvas3.selectAll("#pie").remove();
+
+                var color = d3.scale.category20();
+
+                    // Create canvas
+                var canvas5 = d3.select("#svg6")
+                  .append("svg")
+                    .attr("width",  200+width  + margin.left + margin.right)
+                    .attr("height", 200+ height + margin.top  + margin.bottom)
+                  .append("g")
+                    .attr("transform", "translate(200,150)");
+
+                canvas5.append("text")
+                .text("Points Contribution")
+                .attr("font-size", "14px")
+                .attr("transform", "translate(-50,-120)");
+
+
+                    var updatePies5 = function(data) {
+
+                    var path = canvas5.datum(data).selectAll("path")
+                    path.remove();
+
+                    var pie = d3.layout.pie()
+                        .value(function(d) { return d; })
+                        .sort(null);
+
+                    var arc = d3.svg.arc()
+                        .innerRadius(radius - 100)
+                        .outerRadius(radius - 20);
+                    var outerArc = d3.svg.arc()
+                        .innerRadius(radius * 0.9)
+                        .outerRadius(radius * 0.9);
+
+                    var key = function(d,i){ return points[i]; };
+
+                    //path.remove();
+
+                    var label = d3.svg.arc()
+                        .outerRadius(radius - 40)
+                        .innerRadius(radius - 40);
+
+                    canvas5.append("g")
+                        .attr("class", "slices");
+                    canvas5.append("g")
+                        .attr("class", "labels");
+                    canvas5.append("g")
+                        .attr("class", "lines");
+
+
+                   /*   
+                    path.data(pie)
+                        .enter().append("path")
+                        .attr("id","pie")
+                          .attr("fill", function(d, i) { return color(i); })
+                          .attr("d", arc)
+                          .each(function(d) { this._current = d+200; });
+
+                    path.append("text")
+                      .attr("transform", function(d) { return "translate(" + (label.centroid(d)+10) + ")"; })
+                      .attr("dy", "0.35em")
+                      .text(function(d) { return d; })
+                      .attr("font-size", "10px")
+                      .attr("stroke-width", "3px")
+                      .attr("fill", "black");
+
+                    path
+                        .transition().duration(250)
+                        //.attr("cy", function(d,i) { return d; })
+                        //.attr("height", function(d,i) { return d; })
+                        ;
+
+                    //path.select("#pie").remove();
+
+                    path.remove();
+                    */
+
+    /* ------- PIE SLICES -------*/
+    var slice = canvas5.select(".slices").selectAll("path.slice")
+        .data(pie(data));
+
+    slice.enter()
+        .insert("path")
+        .style("fill", function(d,i) { return color(i); })
+        .attr("class", "slice");
+
+    slice       
+        .transition().duration(1000)
+        .attrTween("d", function(d) {
+            this._current = this._current || d;
+            var interpolate = d3.interpolate(this._current, d);
+            this._current = interpolate(0);
+            return function(t) {
+                return arc(interpolate(t));
+            };
+        })
+
+    slice.exit()
+        .remove();
+
+    /* ------- TEXT LABELS -------*/
+
+    var text = canvas5.select(".labels").selectAll("text")
+        .data(pie(data));
+
+    text.enter()
+        .append("text")
+        .attr("dy", ".35em")
+        .text(function(d,i) {
+            return points[i];
+        });
+    
+    function midAngle(d){
+        return d.startAngle + (d.endAngle - d.startAngle)/2;
+    }
+
+    text.transition().duration(1000)
+        .attrTween("transform", function(d) {
+            this._current = this._current || d;
+            var interpolate = d3.interpolate(this._current, d);
+            this._current = interpolate(0);
+            return function(t) {
+                var d2 = interpolate(t);
+                var pos = outerArc.centroid(d2);
+                pos[0] = radius * (midAngle(d2) < Math.PI ? 1 : -1);
+                return "translate("+ pos +")";
+            };
+        })
+        .styleTween("text-anchor", function(d){
+            this._current = this._current || d;
+            var interpolate = d3.interpolate(this._current, d);
+            this._current = interpolate(0);
+            return function(t) {
+                var d2 = interpolate(t);
+                return midAngle(d2) < Math.PI ? "start":"end";
+            };
+        });
+
+    text.exit()
+        .remove();
+
+    /* ------- SLICE TO TEXT POLYLINES -------*/
+
+    var polyline = canvas5.select(".lines").selectAll("polyline")
+        .data(pie(data));
+    
+    polyline.enter()
+        .append("polyline");
+
+    polyline.transition().duration(1000)
+        .attrTween("points", function(d){
+            this._current = this._current || d;
+            var interpolate = d3.interpolate(this._current, d);
+            this._current = interpolate(0);
+            return function(t) {
+                var d2 = interpolate(t);
+                var pos = outerArc.centroid(d2);
+                pos[0] = radius * 0.95 * (midAngle(d2) < Math.PI ? 1 : -1);
+                return [arc.centroid(d2), outerArc.centroid(d2), pos];
+            };          
+        });
+    
+    polyline.exit()
+        .remove();
+
+
+
+
+                    }
+                    
+
 
 //////////////////////////////////////////////////////////////////////////////////
 
@@ -547,12 +893,16 @@
                         newData1 = teamAge[newteam];
                         newData2 = teamLocation[newteam];
                         newData3 = teamMonth[newteam];
+                        newData4 = teamShootingStats[newteam];
+                        newData5 = teamPoints[newteam];
 
 
                     updateBars(newData);
                     updateHis(newData1);
                     updateHis1(newData2);
                     updateHis2(newData3);
+                    updateHis4(newData4);
+                    updatePies5(newData5);
                 };
 
                 // Get names of teams, for dropdown
@@ -577,10 +927,14 @@
                 var initialData1 = teamAge[ teams[0] ];
                 var initialData2 = teamLocation[ teams[0] ];
                 var initialData3 = teamMonth[ teams[0] ];
+                var initialData4 = teamShootingStats[ teams[0] ];
+                var initialData5 = teamPoints[ teams[0] ];
                 updateBars(initialData);
                 updateHis(initialData1);
                 updateHis1(initialData2);
                 updateHis2(initialData3);
+                updateHis4(initialData4);
+                updatePies5(initialData5);
 
             }
 
