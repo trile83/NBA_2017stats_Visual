@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Documentation</title>
+</head>
+<style>
+        body {
+            font-size: 16px;
+            font-family: "Times New Roman", Times, serif;
+        }
+   
+          nav{
+            height: 25px;
+            background-color: steelblue;
+            display: flex;
+          }
+
+          nav a{
+            color: white;
+            text-decoration: none;
+            margin: auto;
+            font-size: 16px;
+            font-family: "Times New Roman", Times, serif;
+          }
+          nav b{
+                color: white;
+                text-decoration: none;
+                margin: auto;
+                align-content: center;
+                font-size: 16px;
+                font-family: "Times New Roman", Times, serif;
+            }
+        </style>
+<body>
+
+
+<nav>  <b>NBA Data Analysis</b> </nav>
+
+        <nav>
+          <a href="index.html">Regular Season Statistics</a>
+          <a href="TeamStats.html">Team Statistic</a>
+          <a href="teamShot.html">Playoff Shot Location Chart</a>
+          <a href="documentation.html">Documentation</a>
+          <a href="documentation.html">Video</a>
+        </nav>
+
+<h1>Motivation</h1>
+<p>
+Sports analytics is becoming the one of the hottest aspects in data analytics. Spectators, club owners, athletes, and strategists are paying much more attention in athlete’s performance statistics. Visualizing these statistics is the main purpose of our project in order to answer questions regarding athletes and teams’ performances. Visualization of the statistics will help reveal many insights of each team or individual player that can contribute to their success on the court. Our project uses three datasets for the visualization, the first dataset is NBA regular season statistics of 2017-2018 season of individual performances retrieved from NBA Stuffer, one of the basketball statistics websites. The datasets include 30 attributes and 605 rows of player data, which are individual’s performance. The dataset can provide insights in exploring the relationships within each player’s performance and among each team. The data includes the information about the player such as name, age, and team. However, most of the analysis will be done on the quantitative data such as points, minutes, and shooting percentage. Some of the columns are composite statistics which are calculated using some of the other columns. For example, usage rate is a derived statistic which is calculated by using a player’s field goal attempts, free throw attempts, and turnovers as a percentage for each team. Based on these questions we asked in our proposal, will here are following questions we will like to answer in our visualization project. The second dataset has the team statistics of 2017-2018 regular season, retrieved from Basketball Reference website, which consists of winning statistics and in-game statistics. The last data set is the 2018 playoff NBA data retrieved from Kaggle website, which includes each shot location of every players from 16 teams in the total period of the playoff. 
+</p>
+
+<h1>Design Process and Justification</h1>
+
+<p>
+In our proposal document, our team posed several questions pertaining to the correlation of NBA statistics. Someone interested in NBA statistics can easily look up a player’s statistics online, but the numbers themselves do not give an idea of how they compare to other players.
+</p>
+
+<h2>
+Relationship Scatter Plot:
+</h2>
+
+<p>
+With a visualization, it becomes easier to interpret, for example, how many more three-point shots one player attempts compared to the rest of the league in addition to how three-point attempts related to the percentage of made three-point baskets. Most of our questions related to how two statistics related to each other, and the original plan was to create a separate visualization for each. Each would encode the data for the two statistics being compared using position along a common axis. The team each player played for would be encoded using colors from the team’s official logo and jerseys. This was achieved using an ordinal scale using the ‘TEAM’ attribute from our CSV file as the domain and the hex color codes for the teams as found at “https://teamcolorcodes.com/nba-team-color-codes/”. To aid in the interpretation of this data, a legend was added which showed which colors corresponded to each team.
+The team created these visualizations, and they worked as intended, displaying the data and allowing for details on demand via a tooltip that appeared when the user mouse-over a given player’s circle on the scatter-plot. Much of the data was tightly clustered, so the opacity was lowered until the mouseover event occurred, at which point the data point would become opaque and grow in size to let the user know if they were seeing the tooltip for points that they were interested in. However, in creating these visualizations, the team realized that much of the code was the same across the visualizations. Furthermore, with the large variety of attributes in the dataset it was entirely possible that the user would be interested in comparing two statistics that we had not considered creating a visualization for. In response to these revelations, the team decided to create a single visualization for the similar charts with user defined axes.
+The user defined axes were implemented using a set of drop-down selection bars. These were based on an example found at “http://bl.ocks.org/majetisiri/57da501b3182bd08d17402261c7187f7”. It defined two scales with constant ranges for the x and y axes based on the size of the chart but varying domains. These domains would start at zero because none of the statistics used have the possibility of the being a negative number. The maximum value was defined as the maximum value among the dataset plus ten percent so that all points were placed nicely within the chart range. The chart was then applied to both the axes and the x and y positions of the data points. It also took the name of the attribute and both applied it as an axis label and passed it to the tooltip. 
+</p>
+
+<h2>
+Age Distribution and Wins vs Age Scatter Plot
+</h2>
+
+<p>
+Not all of the visualizations were centered on individual player statistics. We also wanted to examine the conventional wisdom that teams that have more veteran players achieve more success. We created a histogram of the age distribution of players, as well as a scatter plot of team wins versus average player age. These were placed on the same page as the user defined chart. After these were all in place and working properly, the team decided to add filtering functionality to the visualization. This came in two forms. The fist involved the color legend. Moving the mouse over a given team’s circle on the legend caused all data points for players on that team, as well as the team’s datapoint on the age versus wins chart, to grow and turn opaque. The other filtering used the age histogram. Moving the cursor over a given bar in the histogram caused all players of that age to undergo a similar transformation. This way, users could easily identify trends across teams, such as which teams attempted more free throws.
+</p>
+
+<h2>
+Team Statistics:
+</h2>
+
+<p>
+The scatter plot helps users can compare any statistics of each player, which can provide many insights and relationships in player’s performance. Nevertheless, our team decided to create more charts that can visualize the performances of teams in NBA, not just players, so that users can find more insight than just comparing the statistics together. Therefore, in the second tab, “Team Statistic,” we created several bar charts, donut charts, and line charts to describe the winning percentage by regions and by months, age distribution, points per game per position, shot efficiency, and total points distribution. We have designed a dropdown selection menu that allows user to choose any team they want to see the statistics. The charts can provide some insights that contribute to each team success or failure in their 2017/2018 season. Our team wants to arrange all the charts in the same windows that allows users to see every statistics in one view, which could maximize perception of these data.
+</p>
+
+
+<h2>
+Playoff Shot Chart:
+</h2>
+
+<p>
+The third page is our visualization of the playoff data of 2018 season. Our team cam across this dataset and we realize that this dataset contains the location coordinates of each shot taken throughout the playoff period, which we think it could be a great visualization for any basketball fans out there. Using the dataset, we created the basketball court with each shot location of each player or each team. We also created a dropdown menu for this visualization to allow users to choose any player or team that they want to see. Each dot on the court shows the shot taken by players. We think this is a create visualization because it helps us see more clearly which players prefer to show a three-point or going for a layup, and which position they are the most efficient. We created the legend of quarter so that user can see which quarter the players or teams are most effective.
+</p>
+
+
+
+<h1>Findings</h1>
+
+<p>
+After analyzing and visualizing the data, we have found some interesting highlights:
+</p>
+<p>•	Teams with a high average age are likely to win more than team with a low average age.</p>
+<p>•	Players with greater height are likely to have more blocks and rebounds per game than shorter players. And shorter players are likely to assist and steal the possession than taller players.</p>
+<p>•	These statistics also correlated with the Offensive Ratings and Defensive Rating since more blocks and steal contribute to less defensive rating, which is better than high rating in term of points gave away to the opponents. Assists and points per game contributed to higher Offensive Rating, which is better than low rating.</p>
+<p>•	The more often the player is used on the court, he is likely to give a turnover of possession.</p>
+<p>•	Houston Rockets, who had attempted more three-points than any other team in the league with the efficiency of 36.2%, had the most wins in the season.</p>
+<p>•	The more three-point percentage correlated with more three-point attempts for any players. James Harden, who had the most three-point attempts in the league (722), also had the highest three-point percentages (0.37), and he ended the season with MVP title.</p>
+<p>•	“Center” used to be a powerful position that scored a large portion of points during 20th century. Now, “Center” is the position that score in average the least points per game compare to other positions. </p>
+<p>•	When viewing the top teams in the league such as Golden State and Houston, we see that their two-point percentage are among the two best in the league. Also, both teams are ranked in the top 5 oldest age teams in the NBA.
+</p>
+
+<h1>Reflection</h1>
+
+<p>
+Our team enjoys working with this project despite multiple difficulties in the visualization parts. All three members of our team is passionate about sports, which led us to choose to visualize this dataset. Visualizing the data helped the team to see how insightful these data have and how difficult to create a meaningful visualization. Because the relationship of the statistic of each player should be viewed separately rather than combining them, we chose to present these data through the scatter plot. Then, with the drop-down menu that users can select any two statistics to compare with each other, we have only one type of charts that can answer most of our questions, and we need more than that for the interaction. Therefore, we had to come up with more design ideas that can better visualize the statistics under different angle. That is why we created different tab for different types of visualizations for this project. However, with more charts to create and more data to process, we faced more problems along the way with the code and how to arrange all the charts together.  
+</p>
+
+<h2>
+Limitation
+</h2>
+
+<p>
+Although our visualizations answer all of the questions that we created in our proposal, it did not any in-depth insights that we thought we could get from the analyzing the dataset. Moreover, with our limited coding capabilities, the visualizations have limited interactivity between the charts and they could cause users difficulty in understanding the charts and graph we created.
+</p>
+
+</body>
+</html>
